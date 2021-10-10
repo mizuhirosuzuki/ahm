@@ -1,0 +1,111 @@
+\documentclass[12pt, fleqn]{article}
+
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{booktabs}
+\usepackage{fullpage}
+\usepackage{lscape}
+\usepackage{natbib}
+\usepackage{setspace} 
+\usepackage{mathtools}
+\doublespacing
+
+\begin{document}
+\title{Agricultural Household Model: Structural Estimation (Monte Carlo Simulation)}
+\author{Mizuhiro Suzuki}
+\maketitle
+
+\section{Basic Model}
+
+I consider the model in which a farmer maximizes lifetime expected utility by making decisions in agricultural production and household.
+More specifically, the farmer solves the following maximization problem by deciding (i) consumption, (ii) production input, and (iii) saving:
+\begin{align*}
+  &\max_{\{C_t, M_t, S_t\}_{t=0}^{\infty}} U(W_t) = \sum_{t=0}^{\infty} E_0\left[\frac{C_t^{1-\rho}}{1-\rho}\right] \\
+        &\text{subject to} \\
+        & \quad C_t + M_t + S_t = W_t                  \quad \text{(budget constraint)} \\
+        & \quad Y_{t+1} = M_t^{\beta_m} \varepsilon_{t+1} \quad \text{(production function)} \\
+        & \quad W_{t+1} = Y_{t+1} + Z_{t+1} + (1+r) S_t   \quad \text{(wealth transition)},
+\end{align*}
+
+where
+\begin{itemize}
+  \item $C_t$: Consumption, $M_t$: Production inputs, $W_t$: Wealth
+  \item $Y_t$: Business revenue, $Z_t \sim \log N(\mu_Z, \sigma_Z)$: ``Other income''
+  \item $\varepsilon_t \sim \log N(\mu_{\varepsilon}, \sigma_{\varepsilon})$: Productivity shocks
+\end{itemize}
+
+The Bellman equation is
+\begin{align*}
+  V(W) &= \max_{C, M, S} \frac{C^{1-\rho}}{1-\rho} + \beta E\left[V(W') \right] \\
+        &\text{subject to} \\
+        & \quad C + M + S = W                 \quad \text{(budget constraint)} \\
+        & \quad Y' = M^{\beta_m} \varepsilon' \quad \text{(production function)} \\
+        & \quad W' = Y' + Z' + (1+r) S        \quad \text{(wealth transition)},
+\end{align*}
+
+The first order conditions are
+\begin{align*}
+  C^{-\rho} &= \beta \beta^m M^{\beta_m-1} E[\varepsilon' V'(M^{\beta_m} \varepsilon' + Z' + (1+r) S)] \\
+  C^{-\rho} &= \beta (1+r) M^{\beta_m-1} E[V'(M^{\beta_m} \varepsilon' + Z' + (1+r) S)]
+\end{align*}
+and the envelope condition is
+\begin{equation*}
+  V'(W) = (W - S - M)^{- \rho}.
+\end{equation*}
+
+Note that there is an uncertainty in production but there is not insurance for that risk.
+Hence, separability does not hold and the household preference (in this case, risk preference) affects production decision making (in this case, production input).
+
+\section{Estimation}
+Parameters to be estimated are $\theta = [\rho, \beta, \beta_m, \mu_{\varepsilon}, \sigma_{\varepsilon}\, \mu_{Z}, \sigma_{Z}]$.
+I use the indirect inference to estimate these parameters.
+Estimation involves the following steps:
+\begin{enumerate}
+  \item Given a set of parameters ($\theta$), solve the dynamic programming model
+  \item Simulate the data and obtain simulated moments ($m(\theta)$)
+  \item Obtain the distance between simulated moments and data moments ($m$)
+  \item Repeat 1-3 to minimize the distance: $\widehat{\theta} = \text{argmin}_{\theta} \ (m(\theta) - m)' (m(\theta) - m)$
+\end{enumerate}
+
+Appendix A shows the moment conditions used for the identification.
+Roughly speaking, the parameters and moment conditions correspond to each other in the following way:
+\begin{align*}
+  \rho, \beta                                               & \leftrightarrow \text{Consumption} \\
+  \beta_m, \mu_{\varepsilon}, \sigma_{\varepsilon}          & \leftrightarrow \text{Production and sales} \\
+  \mu_{Z}, \sigma_{Z}                                       & \leftrightarrow \text{Expenditure and sales}
+\end{align*}
+
+\clearpage
+
+%\bibliographystyle{apalike}
+%\bibliography{se}
+
+\appendix
+\section{Moment conditions}
+\begin{align*}
+    E[E[C|K, W] - C]                                      =  0 \\
+    E[E[(C - E[C|K, W])^2 | K, W] -  (C - \overline{C})^2]     =  0 \\
+    E[(E[C|K, W] - C)W]                                   =  0 \\
+    E[(E[C|K, W] - C)K]                                   =  0 \\
+    E[E[M|K, W] - M]                                      =  0 \\
+    E[E[(M - E[M|K, W])^2 | K, W] -  (M - \overline{M})^2]     =  0 \\
+    E[(E[M|K, W] - M)W]                                   =  0 \\
+    E[(E[M|K, W] - M)K]                                   =  0 \\
+    E[E[D|K, W] - D]                                      =  0 \\
+    E[E[Y'|K, W] - Y']                                    =  0 \\
+    E[E[(Y' - E[Y'|K, W])^2 | K, W] -  (Y' - \overline{Y'})^2] =  0 \\
+    E[E[W'|K, W] - W']                                    =  0 \\
+    E[E[(W' - E[W'|K, W])^2 | K, W] -  (W' - \overline{W'})^2] =  0 \\
+    E[E[K'|K, W] - K']                                    =  0 \\
+    E[E[(K' - E[K'|K, W])^2 | K, W] -  (K' - \overline{K'})^2] =  0 
+\end{align*}
+
+
+
+\end{document}
+
+
+
